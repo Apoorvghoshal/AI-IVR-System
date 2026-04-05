@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Customer Support System</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    overflow: hidden;
+    background: black;
+}
+
+/* 🎥 VIDEO BACKGROUND */
+.video-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    opacity: 0.9;
+    filter: brightness(0.6) contrast(1.1);
+}
+
+/* 🌌 DARK OVERLAY */
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(0,0,0,0.2), rgba(0,0,0,0.85));
+    z-index: -1;
+}
+
+/* 🧭 NAVBAR */
+.navbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+.nav-links {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+/* 🎯 HERO */
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    padding: 0 20px;
+}
+
+/* ✨ HEADING */
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 60px);
+    background: linear-gradient(90deg, #7dd3fc, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+}
+
+/* ⌨️ TYPEWRITER */
+.animation {
+    font-size: clamp(16px, 2.5vw, 26px);
+    border-right: 3px solid white;
+    padding-right: 6px;
+    margin-top: 10px;
+
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+    max-width: 800px;
+}
+
+/* Cursor blink */
+@keyframes blink {
+    50% { border-color: transparent; }
+}
+
+.animation {
+    animation: blink 0.7s step-end infinite;
+}
+
+/* 🎯 CTA BUTTON */
+.cta {
+    margin-top: 40px;
+    padding: 14px 36px;
+    border-radius: 30px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+
+    background: linear-gradient(90deg, #6366f1, #a855f7);
+    color: white;
+
+    transition: 0.3s ease;
+}
+
+.cta:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.8);
+}
+
+/* 📱 MOBILE */
+@media (max-width: 600px) {
+    .navbar {
+        padding: 15px 20px;
+    }
+
+    .nav-links {
+        display: none;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- 🎥 VIDEO BACKGROUND -->
+<video autoplay muted loop playsinline preload="auto" class="video-bg">
+    <source src="https://assets.zyrosite.com/HvNGVd0uXIcE9Glk/untitled-design-1-t3FE1ezYCA5bbKLc.mp4" type="video/mp4">
+</video>
+
+<div class="overlay"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">AI SUPPORT</div>
+    <div class="nav-links">Home • Features • Contact</div>
+</div>
+
+<!-- HERO -->
+<div class="container">
+
+    <h1>AI Customer Support System</h1>
+
+    <div class="animation" id="typewriter"></div>
+
+    <button class="cta">Learn More</button>
+
+</div>
+
+<script>
+
+/* ✨ TEXT ROTATION */
+const texts = [
+    "Your AI-powered hospital assistant",
+    "Automating customer care with intelligence",
+    "Voice-first support for modern businesses",
+    "Seamless conversations powered by AI",
+    "Smart assistance for faster resolutions"
+];
+
+texts.sort(() => Math.random() - 0.5);
+
+let index = 0;
+let charIndex = 0;
+let deleting = false;
+
+const speed = 90;
+const deleteSpeed = 50;
+const delay = 1400;
+
+const element = document.getElementById("typewriter");
+
+function typeEffect() {
+    let current = texts[index];
+
+    if (!deleting) {
+        element.textContent = current.substring(0, charIndex++);
+        if (charIndex > current.length) {
+            setTimeout(() => deleting = true, delay);
+        }
+    } else {
+        element.textContent = current.substring(0, charIndex--);
+        if (charIndex < 0) {
+            deleting = false;
+            index = (index + 1) % texts.length;
+        }
+    }
+
+    setTimeout(typeEffect, deleting ? deleteSpeed : speed);
+}
+
+typeEffect();
+
+</script>
+
+</body>
+</html>
