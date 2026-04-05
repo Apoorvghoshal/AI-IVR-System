@@ -5,6 +5,7 @@ import os
 
 app = Flask(__name__)
 
+BASE_URL = "https://ai-ivr-system-vesm.onrender.com"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
@@ -16,15 +17,16 @@ def voice():
 
     gather = Gather(
         input='speech',
-        action='https://ai-ivr-system-vesm.onrender.com/process-speech',
+        action=f"{BASE_URL}/process-speech",
         method='POST',
         timeout=5
     )
 
-    gather.say("Welcome to our customer service care. How may I help you?")
+    gather.say("Welcome to APEX Hospital customer care. How may I help you?")
     resp.append(gather)
 
     resp.say("We did not receive any input. Goodbye.")
+    resp.hangup()
 
     return str(resp)
 
@@ -37,18 +39,17 @@ def process_speech():
 
     if not user_speech:
         resp.say("Sorry, I could not hear you. Please try again.")
-        resp.redirect('https://ai-ivr-system-vesm.onrender.com/voice')
+        resp.redirect(f"{BASE_URL}/voice")
         return str(resp)
 
     print("User said:", user_speech)
 
-    # Send to Gemini API
     payload = {
-    "contents": [
-        {
-            "parts": [
-                {
-                    "text": f"""
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": f"""
 You are a polite and professional customer care assistant for APEX Hospital.
 
 Hospital Details:
@@ -71,56 +72,58 @@ Response: Sure, please tell me your preferred department. CONTINUE
 
 User query: {user_speech}
 """
-                }
-            ]
-        }
-    ]
-}
-
-    headers = {
-        "Content-Type": "application/json"
+                    }
+                ]
+            }
+        ]
     }
+
+    headers = {"Content-Type": "application/json"}
 
     try:
         gemini_response = requests.post(GEMINI_URL, json=payload, headers=headers)
         result = gemini_response.json()
+
         print("Gemini RAW response:", result)
 
-        ai_reply = result['candidates'][0]['content']['parts'][0]['text']
-
-# Check if END or CONTINUE
-        if "END" in ai_reply:
-            clean_reply = ai_reply.replace("END", "").strip()
-            resp.say(clean_reply)
-            resp.say("Thank you for calling APEX Hospital. Goodbye.")
-            resp.hangup()
-
+        if "candidates" in result:
+            ai_reply = result['candidates'][0]['content']['parts'][0]['text']
         else:
-            clean_reply = ai_reply.replace("CONTINUE", "").strip()
-            resp.say(clean_reply)
+            raise Exception("Invalid Gemini response")
 
-        # Ask again
+    except Exception as e:
+        print("Gemini Error:", e)
+        resp.say("Sorry, I am facing some technical issues.")
+        resp.hangup()
+        return str(resp)
+
+    # 🎯 Handle conversation flow
+    if "END" in ai_reply:
+        clean_reply = ai_reply.replace("END", "").strip()
+        resp.say(clean_reply)
+        resp.say("Thank you for calling APEX Hospital. Goodbye.")
+        resp.hangup()
+
+    else:
+        clean_reply = ai_reply.replace("CONTINUE", "").strip()
+        resp.say(clean_reply)
+
         gather = Gather(
             input='speech',
-            action='https://ai-ivr-system-vesm.onrender.com/process-speech',
+            action=f"{BASE_URL}/process-speech",
             method='POST',
             timeout=5
         )
         gather.say("Is there anything else I can help you with?")
         resp.append(gather)
-    
-        except Exception as e:
-            print("Gemini Error:", e)
-            ai_reply = "Sorry, I am facing some technical issues."
-
-    resp.say(ai_reply)
-
-    # Keep conversation going
-    resp.redirect('https://ai-ivr-system-vesm.onrender.com/voice')
 
     return str(resp)
 
 
+@app.route("/")
+def home():
+    return "AI IVR Running 🚀"
+
+
 if __name__ == "__main__":
-    import os
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
