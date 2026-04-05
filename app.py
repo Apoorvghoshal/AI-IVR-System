@@ -1,8 +1,6 @@
 # Download the helper library from https://www.twilio.com/docs/python/install
 import os
-#SSID - ACd5505799d82166ea1bfbccdfe9bdb4e8
-#Auth - 87b63296dbb08d60fbf1f90da866fec2
-#no. - +16812911714
+
 from flask import Flask, request
 from twilio.twiml.voice_response import VoiceResponse, Gather
 
