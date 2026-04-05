@@ -28,13 +28,19 @@ body {
 /* 🎥 VIDEO BACKGROUND */
 .video-bg {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+
+    transform: translate(-50%, -50%);
+    
     object-fit: cover;
+
     z-index: -2;
-    opacity: 0.9;
+    opacity: 0.6;
     filter: brightness(0.6) contrast(1.1);
 }
 
@@ -174,7 +180,12 @@ h1 {
 </div>
 
 <script>
+const video = document.querySelector(".video-bg");
 
+video.addEventListener("ended", () => {
+    video.currentTime = 0;
+    video.play();
+});
 /* ✨ TEXT ROTATION */
 const texts = [
     "Your AI-powered hospital assistant",
