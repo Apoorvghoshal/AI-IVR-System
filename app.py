@@ -44,14 +44,38 @@ def process_speech():
 
     # Send to Gemini API
     payload = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": user_speech}
-                ]
-            }
-        ]
-    }
+    "contents": [
+        {
+            "parts": [
+                {
+                    "text": f"""
+You are a polite and professional customer care assistant for APEX Hospital.
+
+Hospital Details:
+- Services: General Checkup, Emergency Care, Cardiology, Orthopedics, Neurology
+- Address: MG Road, Raipur
+- Reception: +91 9876543210
+
+Rules:
+- Answer in 1-2 sentences
+- Be polite and human-like
+- If conversation is complete, add END
+- If more help needed, add CONTINUE
+
+Examples:
+User: Thank you
+Response: You're welcome! Have a great day. END
+
+User: I want to book appointment
+Response: Sure, please tell me your preferred department. CONTINUE
+
+User query: {user_speech}
+"""
+                }
+            ]
+        }
+    ]
+}
 
     headers = {
         "Content-Type": "application/json"
@@ -64,9 +88,30 @@ def process_speech():
 
         ai_reply = result['candidates'][0]['content']['parts'][0]['text']
 
-    except Exception as e:
-        print("Gemini Error:", e)
-        ai_reply = "Sorry, I am facing some technical issues."
+# Check if END or CONTINUE
+        if "END" in ai_reply:
+            clean_reply = ai_reply.replace("END", "").strip()
+            resp.say(clean_reply)
+            resp.say("Thank you for calling APEX Hospital. Goodbye.")
+            resp.hangup()
+
+        else:
+            clean_reply = ai_reply.replace("CONTINUE", "").strip()
+            resp.say(clean_reply)
+
+        # Ask again
+        gather = Gather(
+            input='speech',
+            action='https://ai-ivr-system-vesm.onrender.com/process-speech',
+            method='POST',
+            timeout=5
+        )
+        gather.say("Is there anything else I can help you with?")
+        resp.append(gather)
+    
+        except Exception as e:
+            print("Gemini Error:", e)
+            ai_reply = "Sorry, I am facing some technical issues."
 
     resp.say(ai_reply)
 
