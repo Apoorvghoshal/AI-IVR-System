@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask import render_template
 from twilio.twiml.voice_response import VoiceResponse, Gather
 import requests
 import os
@@ -30,6 +31,11 @@ def voice():
 
     return str(resp)
 
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 @app.route("/process-speech", methods=['POST'])
 def process_speech():
