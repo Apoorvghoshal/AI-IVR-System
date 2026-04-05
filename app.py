@@ -59,6 +59,7 @@ def process_speech():
     try:
         gemini_response = requests.post(GEMINI_URL, json=payload, headers=headers)
         result = gemini_response.json()
+        print("Gemini RAW response:", result)
 
         ai_reply = result['candidates'][0]['content']['parts'][0]['text']
 
